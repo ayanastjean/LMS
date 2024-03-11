@@ -1,29 +1,32 @@
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Ayana St Jean
  * CEN 3024 - Software Development 1
- * January 26, 2024
+ * March 3rd, 2024
  * Catalog.java
  * this class manages the catalog. It allows books to be added and deleted from the inventory while updating the catalog.txt file.
  */
 class Catalog {
-    private List<Book> inventory;
-    private int autoId;
+    private static List<Book> inventory;
+
     public Catalog() {
-        this.autoId = 1;
         inventory = new ArrayList<>();
     }
-    /**
-     * method: getAutoId
-     * parameters: none
-     * return: int
-     * purpose: returns the auto generated id
+    /*
+      method: getAutoId
+      parameters: none
+      return: int
+      purpose: returns the auto generated id
      */
-    public int getAutoId() {
-        return autoId;
-    }
+
     /**
      * method: addBook
      * parameters: Book book
@@ -59,10 +62,8 @@ class Catalog {
     public void deleteBook(int id) {
         Book bookToRemove = null;
         for (Book book : inventory) {
-            if (book.getId() == id) {
-                bookToRemove = book;
-                break;
-            }
+            bookToRemove = book;
+            break;
         }
         if (bookToRemove != null) {
             inventory.remove(bookToRemove);
@@ -111,6 +112,51 @@ class Catalog {
             System.out.println(book.getId() + ", " + book.getTitle() + ", " + book.getAuthor());
 
         }
+    }
+    public static void checkOutBook(int id) {
+        Book bookToCheckOut = null;
+        for (Book book : inventory) {
+            if (book.getId() == id) {
+                bookToCheckOut = book;
+                break;
+            }
+        }
+        if (bookToCheckOut != null) {
+            if (bookToCheckOut.isCheckedOut()) {
+                System.out.println("Sorry, the book is currently checked out.");
+            } else {
+                bookToCheckOut.setCheckedOut(true);
+                bookToCheckOut.setDueDate(LocalDate.now().plusDays(14));
+                bookToCheckOut.setStatus("Checked Out");
+                System.out.println("Book ID# " + id + " checked out successfully!");
+            }
+        } else {
+            System.out.println("Book ID# " + id + " not found in inventory.");
+        }
+    }
+
+
+    public static void checkInBook(int id) {
+        Book bookToCheckIn = null;
+        for (Book book : inventory) {
+            if (book.getId() == id) {
+                bookToCheckIn = book;
+                break;
+            }
+        }
+        if (bookToCheckIn != null) {
+            bookToCheckIn.setCheckedOut(false);
+            bookToCheckIn.setDueDate(null);
+            bookToCheckIn.setStatus("Available");
+            System.out.println("Book ID# " + id + " checked in successfully!");
+        } else {
+            System.out.println("Book ID# " + id + " not found in inventory.");
+        }
+    }
+
+
+    public List<Book> inventory() {
+        return inventory;
     }}
 
 
