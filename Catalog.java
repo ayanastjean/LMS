@@ -17,15 +17,13 @@ import java.util.Scanner;
 class Catalog {
     private static List<Book> inventory;
 
+
     public Catalog() {
         inventory = new ArrayList<>();
     }
-    /*
-      method: getAutoId
-      parameters: none
-      return: int
-      purpose: returns the auto generated id
-     */
+    public List<Book> inventory() {
+        return inventory;
+    }
 
     /**
      * method: addBook
@@ -50,9 +48,10 @@ class Catalog {
                 writer.write(book.getId() + ", " + book.getTitle() + ", " + book.getAuthor() + "\n");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error writing to file: " + e.getMessage());
         }
     }
+
     /**
      * method: deleteBook
      * parameters: int id
@@ -79,27 +78,31 @@ class Catalog {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        writeInventoryToFile(); // Update inventory file
+
     }
-    /**
-     * method: readFromFile
-     * parameters: none
-     * return: none
-     * purpose: reads from the file and adds to the book inventory
-     */
-    public void readFromFile() {
-        try (Scanner fileScanner = new Scanner(new File("catalog.txt"))) {
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                String[] bookData = line.split(", ");
-                int id = Integer.parseInt(bookData[0]);
-                String title = bookData[1];
-                String author = bookData[2];
-                Book book = new Book(id, title, author);
-                inventory.add(book);
+    public void deleteBookByTitle(String title) {
+        Book bookToRemove = null;
+        for (Book book : inventory) {
+            bookToRemove = book;
+            break;
+        }
+        if (bookToRemove != null) {
+            inventory.remove(bookToRemove);
+            System.out.println("Book : " + title + " deleted from inventory!");
+        } else {
+            System.out.println("Book: " + title + " not found in inventory.");
+        }
+        writeInventoryToFile();
+        try (FileWriter writer = new FileWriter("catalog.txt")) {
+            for (Book book : inventory) {
+                writer.write(book.getId() + ", " + book.getTitle() + ", " + book.getAuthor() + "\n");
             }
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+        writeInventoryToFile(); // Update inventory file
+
     }
     /**
      * method: displayAllBooks
@@ -113,27 +116,49 @@ class Catalog {
 
         }
     }
-    public static void checkOutBook(int id) {
-        Book bookToCheckOut = null;
-        for (Book book : inventory) {
-            if (book.getId() == id) {
-                bookToCheckOut = book;
-                break;
+    /**
+     * method: readFromFile
+     * parameters: none
+     * return: none
+     * purpose: reads from the file and adds to the book inventory
+     */
+    public void readFromFile(String filePath) {
+        try (Scanner fileScanner = new Scanner(new File(filePath))) {
+            while (fileScanner.hasNextLine()) {
+                String line = fileScanner.nextLine();
+                String[] bookData = line.split(",", 3);
+                if (bookData.length == 3) {
+                    int id = Integer.parseInt(bookData[0].trim());
+                    String title = bookData[1].trim();
+                    String author = bookData[2].trim();
+                    Book book = new Book(id, title, author);
+                    inventory.add(book);
+                } else {
+                    System.err.println("Invalid line format: " + line);
+                }
             }
-        }
-        if (bookToCheckOut != null) {
-            if (bookToCheckOut.isCheckedOut()) {
-                System.out.println("Sorry, the book is currently checked out.");
-            } else {
-                bookToCheckOut.setCheckedOut(true);
-                bookToCheckOut.setDueDate(LocalDate.now().plusDays(14));
-                bookToCheckOut.setStatus("Checked Out");
-                System.out.println("Book ID# " + id + " checked out successfully!");
-            }
-        } else {
-            System.out.println("Book ID# " + id + " not found in inventory.");
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + e.getMessage());
         }
     }
+
+
+
+    public void checkOutBook(int id) {
+        for (Book book : inventory) {
+            if (book.getId() == id && !book.isCheckedOut()) {
+                book.setCheckedOut(true);
+                book.setDueDate(LocalDate.now().plusDays(14));
+                book.setStatus("Checked Out");
+                System.out.println("Book ID# " + id + " checked out successfully!");
+                System.out.println("Book is due " + book.getDueDate() + "!");
+                writeInventoryToFile(); // Update inventory file
+                return;
+            }
+        }
+        System.out.println("Book ID# " + id + " not found or already checked out.");
+    }
+
 
 
     public static void checkInBook(int id) {
@@ -148,15 +173,18 @@ class Catalog {
             bookToCheckIn.setCheckedOut(false);
             bookToCheckIn.setDueDate(null);
             bookToCheckIn.setStatus("Available");
-            System.out.println("Book ID# " + id + " checked in successfully!");
+            System.out.println("Book ID#" + id + " checked in successfully!");
         } else {
             System.out.println("Book ID# " + id + " not found in inventory.");
         }
     }
 
 
-    public List<Book> inventory() {
-        return inventory;
-    }}
+
+
+    public void addBook() {
+
+    }
+}
 
 

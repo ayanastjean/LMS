@@ -1,11 +1,4 @@
-/**
- * Ayana St Jean
- * CEN 3024 - Software Development 1
- * March 3, 2024
- * LibraryManagementSystem.java
- *The interface skeleton for managing the library systems selection menu .
- */
-
+import javax.swing.*;
 import java.util.Scanner;
 
 class LibraryManagementSystem {
@@ -13,8 +6,10 @@ class LibraryManagementSystem {
     public static void main(String[] args) {
         Catalog catalog = new Catalog();
         Scanner scanner = new Scanner(System.in);
-        catalog.readFromFile();
-        catalog.writeInventoryToFile();
+
+        SwingUtilities.invokeLater(() -> {
+            UserInterface ui = new UserInterface(catalog);
+        });
 
         int choice = 0;
         while (choice != 6) {
@@ -30,7 +25,7 @@ class LibraryManagementSystem {
             scanner.nextLine();
 
             switch (choice) {
-                case 1 -> {
+                case 1:
                     System.out.print("Enter the book barcode: ");
                     int id = scanner.nextInt();
                     System.out.print("Enter the book title: ");
@@ -39,34 +34,39 @@ class LibraryManagementSystem {
                     String author = scanner.next();
                     Book book = new Book(id, title, author);
                     catalog.addBook(book);
-                }
-                case 2 -> {
+                    break;
+                case 2:
                     System.out.print("Enter the book barcode#: ");
-                    int id = scanner.nextInt();
+                    int removeId = scanner.nextInt();
                     scanner.nextLine();
-                    catalog.deleteBook(id);
-                }
-                case 3 -> {
+                    catalog.deleteBook(removeId);
+                    break;
+                case 3:
                     System.out.println("Compiling inventory..");
                     catalog.displayAllBooks();
-                }
-                case 4 -> {
+                    break;
+                case 4:
                     System.out.println("CHECK IN BOOK");
                     System.out.print("Enter the book barcode#: ");
-                    int id = scanner.nextInt();
+                    int checkInId = scanner.nextInt();
                     scanner.nextLine();
-                    Catalog.checkInBook(id);
-            }
-                case 5 -> {
+                    catalog.checkInBook(checkInId);
+                    break;
+                case 5:
                     System.out.println("CHECK OUT BOOK");
                     System.out.print("Enter the book barcode#: ");
-                    int id = scanner.nextInt();
+                    int checkOutId = scanner.nextInt();
                     scanner.nextLine();
-                    Catalog.checkOutBook(id);
+                    catalog.checkOutBook(checkOutId);
+                    break;
+                case 6:
+                    System.out.println("Closing LMS...");
+                    break;
+                default:
+                    System.out.println("Choice not available. Please try again.");
             }
-                case 6 -> System.out.println("Closing LMS...");
-
-        default -> System.out.println("Choice not available. Please try again.");
-            }}}}
-
+        }
+        scanner.close();
+    }
+}
 
