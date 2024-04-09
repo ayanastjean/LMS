@@ -1,55 +1,34 @@
 import java.time.LocalDate;
 
-/**
- * Ayana St Jean
- * CEN 3024 - Software Development 1
- * January 26, 2024
- * Book.java
- * this class creates the book objects by title, author, and id.
- */
 public class Book {
     private int id;
     private String title;
     private String author;
+    private String genre;
     private boolean checkedOut;
     private boolean available;
     private LocalDate dueDate;
     private String status;
 
-    public Book(int id, String title, String author) {
+    public Book(int id, String title, String author, String genre, boolean checkedOut, LocalDate dueDate) {
         this.id = id;
         this.title = title;
         this.author = author;
-
+        this.genre = genre;
+        this.checkedOut = checkedOut;
+        this.available = !checkedOut;
+        this.dueDate = dueDate;
+        this.status = checkedOut ? "Checked Out" : "Available";
     }
 
-
-    /**
-     * method: getId
-     * parameters: none
-     * return: int
-     * purpose: gets the id#.
-     */
     public int getId() {
         return id;
     }
 
-    /**
-     * method: getTitle
-     * parameters: none
-     * return: int
-     * purpose: gets the title.
-     */
     public String getTitle() {
         return title;
     }
 
-    /**
-     * method: getAuthor
-     * parameters: none
-     * return: String
-     * purpose: gets the author's name.
-     */
     public String getAuthor() {
         return author;
     }
@@ -78,12 +57,11 @@ public class Book {
         return dueDate;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
     public String getStatus() {
         return status;
     }
-}
 
+    public void setStatus(String status) {
+        this.status = status;
+    }
+}
