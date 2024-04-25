@@ -3,30 +3,44 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * UserInterface class represents the graphical user interface for the Library Management System.
+ */
 public class UserInterface {
-    private JButton exitProgramButton;
-    private JButton checkOutBookButton;
-    private JButton checkInBookButton;
-    private JButton deleteBookButton;
-    private JButton addBookButton;
-    private JButton displayAllBooksButton;
-    private JPanel LMS;
-    private Catalog catalog;
-    private Component genreField;
+    private JButton exitProgramButton; // Button to exit the program
+    private JButton checkOutBookButton; // Button to check out a book
+    private JButton checkInBookButton; // Button to check in a book
+    private JButton deleteBookButton; // Button to delete a book
+    private JButton addBookButton; // Button to add a new book
+    private JButton displayAllBooksButton; // Button to display all books
+    private JPanel LMS; // Panel for the library management system interface
+    private JButton deleteAllBooksButton; // Button to delete all books
+    private Catalog catalog; // Catalog object to interact with
 
+    /**
+     * Constructor for UserInterface class.
+     *
+     * @param catalog The catalog to interact with.
+     */
     public UserInterface(Catalog catalog) {
         this.catalog = catalog;
         {
+            // Create the main frame
             JFrame frame = new JFrame("Library Management System");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+            // Set font
             Font font = new Font("Century Gothic", Font.PLAIN, 14);
+
+            // Add image label
             JLabel imageLabel = new JLabel();
             ImageIcon imageIcon = new ImageIcon("src/Untitled design-5.png");
             imageLabel.setIcon(imageIcon);
             frame.setLocationRelativeTo(null);
             frame.getContentPane().add(imageLabel, BorderLayout.NORTH);
+            frame.setResizable(true);
 
+            // Action listener for checking out a book
             checkOutBookButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -41,6 +55,7 @@ public class UserInterface {
                 }
             });
 
+            // Action listener for checking in a book
             checkInBookButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -52,6 +67,7 @@ public class UserInterface {
                 }
             });
 
+            // Action listener for displaying all books
             displayAllBooksButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -61,9 +77,9 @@ public class UserInterface {
                     inventoryArea.setColumns(40);
 
                     for (Book book : catalog.inventory()) {
-                        String status = book.isCheckedOut() ? "Checked Out" : "Available";
-                        String dueDate = book.getDueDate() != null ? book.getDueDate().toString() : "N/A"; // Convert Date to String
-                        inventoryArea.append(book.getId() + ", " + book.getTitle() + ", " + book.getAuthor() + ", Status: " + status + ", Due Date: " + dueDate + "\n");
+                        String status = book.getStatus();
+                        String dueDate = book.getDueDate() != null ? book.getDueDate().toString() : "N/A";
+                        inventoryArea.append(book.getId() + ", " + book.getTitle() + ", " + book.getAuthor() + ", Genre: " + book.getGenre() + ", Status: " + status + ", Due Date: " + dueDate + "\n");
                     }
 
                     JScrollPane scrollPane = new JScrollPane(inventoryArea);
@@ -74,6 +90,7 @@ public class UserInterface {
                 }
             });
 
+            // Action listener for exiting the program
             exitProgramButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -82,16 +99,16 @@ public class UserInterface {
                 }
             });
 
+            // Action listener for adding a book
             addBookButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JPanel inputPanel = new JPanel(new GridLayout(4, 2));
-
                     JTextField barcodeField = new JTextField(10);
                     JTextField titleField = new JTextField(20);
                     JTextField authorField = new JTextField(20);
 
-                    String[] genres = {"Fiction", "Non-fiction"};
+                    String[] genres = {"Select Genre", "Fiction", "Non-fiction"};
                     JComboBox<String> genreComboBox = new JComboBox<>(genres);
 
                     inputPanel.add(new JLabel("Barcode:"));
@@ -122,6 +139,7 @@ public class UserInterface {
                 }
             });
 
+            // Action listener for deleting a book
             deleteBookButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -165,9 +183,33 @@ public class UserInterface {
             frame.pack();
             frame.setVisible(true);
         }
+
+        // Action listener for deleting all books
+        deleteAllBooksButton.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e the event to be processed
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Show confirmation dialog
+                int confirm = JOptionPane.showConfirmDialog(null, "Are you sure you want to delete all books?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    // Delete all books from the database
+                    catalog.deleteAllBooksFromDatabase();
+                    // Show deletion success message
+                    JOptionPane.showMessageDialog(null, "All books deleted successfully.");
+                    // Refresh the book list display
+                    refreshBookList();
+                }
+            }
+        });
     }
 
-
+    /**
+     * Refreshes the book list display.
+     */
     private void refreshBookList() {
         JTextArea inventoryArea = new JTextArea();
         inventoryArea.setEditable(false);
@@ -177,7 +219,7 @@ public class UserInterface {
         for (Book book : catalog.inventory()) {
             String status = book.getStatus();
             String dueDate = book.getDueDate() != null ? book.getDueDate().toString() : "N/A";
-            inventoryArea.append(book.getId() + ", " + book.getTitle() + ", " + book.getAuthor() + ", Status: " + status + ", Due Date: " + dueDate + "\n");
+            inventoryArea.append(book.getId() + ", " + book.getTitle() + ", " + book.getAuthor() + ", Genre: " + book.getGenre() + ", Status: " + status + ", Due Date: " + dueDate + "\n");
         }
 
         JScrollPane scrollPane = new JScrollPane(inventoryArea);

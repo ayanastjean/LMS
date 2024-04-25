@@ -3,33 +3,47 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The CatalogDatabase class manages interactions with the database for book-related operations.
+ */
 public class CatalogDatabase {
     private Connection connection;
 
+    /**
+     * Constructs a new CatalogDatabase object and establishes a connection to the database.
+     */
     public CatalogDatabase() {
         try {
             Class.forName("org.sqlite.JDBC");
-
-
             this.connection = DriverManager.getConnection("jdbc:sqlite:LibraryLMS.db");
-
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Retrieves the connection to the database.
+     *
+     * @return The connection to the database.
+     */
     public Connection getConnection() {
         return connection;
     }
 
+    /**
+     * Adds a new book to the database.
+     *
+     * @param book The book to be added to the database.
+     */
     public void addBook(Book book) {
         try {
             PreparedStatement addBook = connection.prepareStatement(
-                    "INSERT INTO books (id, title, author) VALUES (?, ?, ?)"
+                    "INSERT INTO books (id, title, author, genre) VALUES (?, ?, ?,?)"
             );
             addBook.setInt(1, book.getId());
             addBook.setString(2, book.getTitle());
             addBook.setString(3, book.getAuthor());
+            addBook.setString(4, book.getGenre());
             addBook.executeUpdate();
             System.out.println("Book added successfully.");
         } catch (SQLIntegrityConstraintViolationException e) {
@@ -39,6 +53,11 @@ public class CatalogDatabase {
         }
     }
 
+    /**
+     * Retrieves all books from the database.
+     *
+     * @return A list containing all books retrieved from the database.
+     */
     public List<Book> getAllBooks() {
         List<Book> books = new ArrayList<>();
         try {
@@ -61,7 +80,11 @@ public class CatalogDatabase {
         return books;
     }
 
-
+    /**
+     * Deletes a book from the database based on its ID.
+     *
+     * @param id The ID of the book to be deleted.
+     */
     public void deleteBook(int id) {
         try {
             PreparedStatement deleteBookById = connection.prepareStatement(
@@ -74,6 +97,11 @@ public class CatalogDatabase {
         }
     }
 
+    /**
+     * Deletes a book from the database based on its title.
+     *
+     * @param title The title of the book to be deleted.
+     */
     public void deleteBookByTitle(String title) {
         try {
             PreparedStatement deleteBookByTitle = connection.prepareStatement(
@@ -86,8 +114,19 @@ public class CatalogDatabase {
         }
     }
 
+    public void deleteAllBooksFromDatabase() {
+        try {
+            Statement statement = connection.createStatement();
+            statement.executeUpdate("DELETE FROM books");
+            System.out.println("All books deleted successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-
+    /**
+     * Closes the connection to the database.
+     */
     public void closeConnection() {
         try {
             if (connection != null) {
@@ -96,6 +135,5 @@ public class CatalogDatabase {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-    }  }
-
-
+    }
+}
